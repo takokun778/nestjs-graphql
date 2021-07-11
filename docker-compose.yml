@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+    dev:
+        container_name: ${UNAME}_dev
+        build:
+            context: .
+            args: 
+                - UID=${UID}
+                - GID=${GID}
+                - UNAME=${UNAME}
+        tty: true
+        volumes:
+            - ./app:/home/${UNAME}/app
+        ports:
+            - "3000:3000"
+        links:
+            - db
+            # DB_HOST -> database
+            - db:database
+        environment:
+            DB_USER: postgres
+            DB_PASS: postgres
+            DB_HOST: database
+            DB_PORT: ${DB_PORT}
+            DB_NAME: ${UNAME}
+    db:
+        container_name: ${UNAME}_db
+        image: postgres:13.3-alpine
+        ports:
+            - ${DB_PORT}:5432
+        environment:
+            TZ: "Asia/Tokyo"
+            POSTGRES_DB: ${UNAME}
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+            POSTGRES_HOST_AUTH_METHOD: trust
+        hostname: postgres
+        user: postgres
+        
